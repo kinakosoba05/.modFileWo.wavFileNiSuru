@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOD Ultra-Fast Stem Exporter (Studio Quality) V7</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #09090b;
+            color: #f4f4f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            background: #18181b;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 540px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            border: 1px solid #27272a;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+        }
+        .subtitle {
+            font-size: 13px;
+            color: #71717a;
+            text-align: center;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        .drop-zone {
+            border: 2px dashed #3f3f46;
+            border-radius: 14px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #202023;
+            margin-bottom: 24px;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #06b6d4;
+            background: #27272a;
+        }
+        .drop-zone-text {
+            font-size: 14px;
+            color: #a1a1aa;
+            line-height: 1.6;
+        }
+        .file-info {
+            margin-top: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #06b6d4;
+            word-break: break-all;
+        }
+        .meta-card {
+            background: #202023;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid #27272a;
+            display: none;
+        }
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .meta-label {
+            color: #71717a;
+        }
+        .meta-value {
+            font-weight: 600;
+            color: #e4e4e7;
+        }
+        
+        /* 追加したオプションカードのスタイル */
+        .option-card {
+            background: #1e293b;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            border: 1px solid #334155;
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            color: #e2e8f0;
+            font-weight: 500;
+            user-select: none;
+        }
+        .option-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #06b6d4;
+            cursor: pointer;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            display: block;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            color: #ffffff;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+        }
+        .btn-primary:hover:not(:disabled) {
+            filter: brightness(1.1);
+        }
+        .btn:disabled {
+            opacity: 0.15;
+            cursor: not-allowed;
+            box-shadow: none !important;
+        }
+        
+        .progress-container {
+            margin-top: 24px;
+            display: none;
+        }
+        .progress-bar-bg {
+            background: #27272a;
+            border-radius: 9999px;
+            height: 8px;
+            overflow: hidden;
+            width: 100%;
+        }
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #06b6d4, #10b981);
+            height: 100%;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        .status-message {
+            text-align: center;
+            font-size: 14px;
+            color: #a1a1aa;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+
+        .download-zone {
+            margin-top: 32px;
+            border-top: 1px solid #27272a;
+            padding-top: 24px;
+            display: none;
+        }
+        .download-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+        .download-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .download-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #202023;
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 1px solid #27272a;
+        }
+        .track-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #e4e4e7;
+        }
+        .track-size {
+            font-size: 12px;
+            color: #71717a;
+            margin-left: 8px;
+        }
+        .download-link {
+            color: #10b981;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.15s;
+        }
+        .download-link:hover {
+            color: #34d399;
+        }
+        .btn-batch {
+            background: #27272a;
+            color: #ffffff;
+            border: 1px solid #3f3f46;
+            font-size: 14px;
+            padding: 14px;
+        }
+        .btn-batch:hover {
+            background: #3f3f46;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>MOD Ultra Stem Exporter</h1>
+        <div class="subtitle">完全実機版（V7）<br>曲の無限延長バグ修正＆適正サイズ化</div>
+        
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('modFile').click()">
+            <div class="drop-zone-text" id="dropZoneText">
+                ここに .mod ファイルをドロップ<br>またはクリックして選択
+            </div>
+            <div class="file-info" id="fileName"></div>
+            <input type="file" id="modFile" accept=".mod" style="display: none;">
+        </div>
+
+        <div class="meta-card" id="metaCard">
+            <div class="meta-row">
+                <span class="meta-label">モジュール名:</span>
+                <span id="txtTitle" class="meta-value">---</span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">総パターン数:</span>
+                <span id="txtPatterns" class="meta-value">---</span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">ソング長:</span>
+                <span id="txtLength" class="meta-value">---</span>
+            </div>
+        </div>
+
+        <!-- 追加したパンニング無効化オプション設定UI -->
+        <div class="option-card">
+            <label class="option-label">
+                <input type="checkbox" id="chkDisablePan">
+                <span>🚫 WAV出力時のパンニングを無効化 (全てセンター定位)</span>
+            </label>
+        </div>
+
+        <button id="btnExport" class="btn btn-primary" disabled>🚀 スパッとパラデータ書き出しを実行</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+
+        <div class="download-zone" id="downloadZone">
+            <div class="download-title">✨ 生成されたWAVデータ（無劣化16bit / 44.1kHz）</div>
+            <div class="download-list" id="downloadList"></div>
+            <button id="btnBatchDownload" class="btn btn-batch">📦 全5ファイルをまとめて一括ダウンロード</button>
+        </div>
+    </div>
+
+    <script>
+        const AMIGA_CLOCK = 3546895;
+        const PERIODS = [856,808,762,720,678,640,604,570,538,508,480,453,428,404,381,360,339,320,302,285,269,254,240,226,214,202,190,180,170,160,151,143,134,127,120,113];
+        const FINETUNE_MULTIPLIERS = [];
+        for(let i=-8; i<=7; i++) FINETUNE_MULTIPLIERS[i] = Math.pow(2, (i / 8) / 12);
+        const VIBRATO_TABLE = Array.from({length: 64}, (_, i) => Math.sin(i * Math.PI / 32) * 255);
+
+        let modData = null;
+        let exportActive = false;
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('modFile');
+        const btnExport = document.getElementById('btnExport');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const statusMessage = document.getElementById('statusMessage');
+        const downloadZone = document.getElementById('downloadZone');
+        const downloadList = document.getElementById('downloadList');
+        const btnBatchDownload = document.getElementById('btnBatchDownload');
+        const chkDisablePan = document.getElementById('chkDisablePan'); // 追加
+
+        window.addEventListener('dragover', (e) => e.preventDefault());
+        window.addEventListener('drop', (e) => e.preventDefault());
+
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFileProcess(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFileProcess(file);
+        });
+
+        btnExport.addEventListener('click', runOfflineRendering);
+
+        function handleFileProcess(file) {
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('dropZoneText').style.display = "none";
+            downloadZone.style.display = "none";
+            progressContainer.style.display = "none";
+            
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    parseMOD(evt.target.result);
+                    document.getElementById('metaCard').style.display = "block";
+                    btnExport.disabled = false;
+                    statusMessage.textContent = "";
+                } catch(err) {
+                    alert("MODファイルの解析に失敗しました。");
+                    document.getElementById('fileName').textContent = "";
+                    document.getElementById('dropZoneText').style.display = "block";
+                    document.getElementById('metaCard').style.display = "none";
+                    btnExport.disabled = true;
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function parseMOD(buffer) {
+            const view = new DataView(buffer);
+            modData = {
+                title: getString(view, 0, 20),
+                samples: [], songLength: view.getUint8(950), restartPos: view.getUint8(951),
+                order: [], patterns: [], numPatterns: 0
+            };
+
+            for (let i = 0; i < 31; i++) {
+                let offset = 20 + i * 30;
+                let finetune = view.getUint8(offset + 24) & 0xF;
+                if (finetune > 7) finetune -= 16;
+                modData.samples.push({
+                    length: view.getUint16(offset + 22) * 2,
+                    finetune: finetune,
+                    volume: view.getUint8(offset + 25),
+                    loopStart: view.getUint16(offset + 26) * 2,
+                    loopLength: view.getUint16(offset + 28) * 2,
+                    pcmData: null
+                });
+            }
+
+            for (let i = 0; i < 128; i++) {
+                let p = view.getUint8(952 + i);
+                modData.order.push(p);
+                if (p > modData.numPatterns) modData.numPatterns = p;
+            }
+            modData.numPatterns++;
+
+            let patternOffset = 1084;
+            for (let p = 0; p < modData.numPatterns; p++) {
+                let pattern = [];
+                for (let row = 0; row < 64; row++) {
+                    let rowData = [];
+                    for (let ch = 0; ch < 4; ch++) {
+                        let b0 = view.getUint8(patternOffset), b1 = view.getUint8(patternOffset + 1);
+                        let b2 = view.getUint8(patternOffset + 2), b3 = view.getUint8(patternOffset + 3);
+                        patternOffset += 4;
+                        rowData.push({
+                            sample: (b0 & 0xF0) | ((b2 & 0xF0) >> 4),
+                            period: ((b0 & 0x0F) << 8) | b1,
+                            effect: (b2 & 0x0F),
+                            effVal: b3
+                        });
+                    }
+                    pattern.push(rowData);
+                }
+                modData.patterns.push(pattern);
+            }
+
+            let sampleDataOffset = patternOffset;
+            for (let i = 0; i < 31; i++) {
+                let smp = modData.samples[i];
+                if (smp.length > 0) {
+                    let pcm = new Float32Array(smp.length);
+                    for (let j = 0; j < smp.length; j++) {
+                        if (sampleDataOffset < buffer.byteLength) {
+                            pcm[j] = view.getInt8(sampleDataOffset) / 128.0;
+                            sampleDataOffset++;
+                        }
+                    }
+                    smp.pcmData = pcm;
+                }
+            }
+            
+            document.getElementById('txtTitle').textContent = modData.title || "Untitled";
+            document.getElementById('txtPatterns').textContent = modData.numPatterns;
+            document.getElementById('txtLength').textContent = modData.songLength;
+        }
+
+        function getString(view, offset, len) {
+            let str = "";
+            for (let i = 0; i < len; i++) {
+                let c = view.getUint8(offset + i);
+                if (c === 0) break;
+                if (c >= 32 && c < 127) str += String.fromCharCode(c);
+            }
+            return str.trim();
+        }
+
+        function getPeriodOffset(basePeriod, semitones) {
+            if (basePeriod === 0) return 0;
+            let closestIdx = 0, minDiff = 9999;
+            for (let i = 0; i < PERIODS.length; i++) {
+                let diff = Math.abs(PERIODS[i] - basePeriod);
+                if (diff < minDiff) { minDiff = diff; closestIdx = i; }
+            }
+            let targetIdx = Math.max(0, Math.min(PERIODS.length - 1, closestIdx + semitones));
+            return PERIODS[targetIdx];
+        }
+
+        async function runOfflineRendering() {
+            if (!modData || exportActive) return;
+            exportActive = true;
+            btnExport.disabled = true;
+            downloadZone.style.display = "none";
+            progressContainer.style.display = "block";
+            progressBar.style.width = "0%";
+            statusMessage.textContent = "超高速スタジオクオリティレンダリング開始...";
+
+            await new Promise(r => setTimeout(r, 50));
+
+            const sampleRate = 44100;
+            const MAX_SAMPLES = sampleRate * 60 * 10; 
+            
+            const mixL = new Float32Array(MAX_SAMPLES);
+            const mixR = new Float32Array(MAX_SAMPLES);
+            const chL = Array.from({length: 4}, () => new Float32Array(MAX_SAMPLES));
+            const chR = Array.from({length: 4}, () => new Float32Array(MAX_SAMPLES));
+
+            let currentSongPos = 0, currentRow = 0, currentTick = 0, speed = 6, bpm = 125;
+            let samplesLeftInTick = 0;
+            let visitedPositions = new Set();
+            let nextRowJump = -1, nextPosJump = -1;
+            
+            let chState = Array.from({length: 4}, () => ({ 
+                sample: 0, smpPos: 0, volume: 64, period: 0, targetPeriod: 0, portaSpeed: 0,
+                vibratoPos: 0, vibratoSpeed: 0, vibratoDepth: 0,
+                effect: 0, effVal: 0, basePeriod: 0, finetune: 0
+            }));
+
+            let s = 0;
+            const mixGain = 0.35; 
+            
+            // パンニング無効化フラグの取得
+            const isPanDisabled = chkDisablePan.checked;
+
+            while (s < MAX_SAMPLES) {
+                if (samplesLeftInTick <= 0) {
+                    if (currentTick === 0) {
+                        let posKey = currentSongPos + "_" + currentRow;
+                        if (currentSongPos >= modData.songLength || visitedPositions.has(posKey)) {
+                            break; 
+                        }
+                        visitedPositions.add(posKey);
+
+                        let patternIdx = modData.order[currentSongPos];
+                        let pattern = modData.patterns[patternIdx];
+                        if (pattern) {
+                            let rowData = pattern[currentRow];
+                            if (rowData) {
+                                for (let ch = 0; ch < 4; ch++) {
+                                    let note = rowData[ch];
+                                    let state = chState[ch];
+                                    state.effect = note.effect;
+                                    state.effVal = note.effVal;
+                                    
+                                    if (note.sample > 0) {
+                                        state.sample = note.sample;
+                                        let smp = modData.samples[note.sample - 1];
+                                        state.volume = smp.volume;
+                                        state.finetune = smp.finetune;
+                                    }
+                                    
+                                    if (note.period > 0) {
+                                        if (state.effect === 0x3 || state.effect === 0x5) {
+                                            state.targetPeriod = note.period;
+                                        } else {
+                                            state.period = note.period;
+                                            state.basePeriod = note.period;
+                                            state.smpPos = 0;
+                                        }
+                                    }
+                                    
+                                    switch (state.effect) {
+                                        case 0x3: if (state.effVal > 0) state.portaSpeed = state.effVal; break;
+                                        case 0x4: 
+                                            if (state.effVal > 0) {
+                                                if ((state.effVal >> 4) > 0) state.vibratoSpeed = state.effVal >> 4;
+                                                if ((state.effVal & 0x0F) > 0) state.vibratoDepth = state.effVal & 0x0F;
+                                            } break;
+                                        case 0xB: nextPosJump = state.effVal; nextRowJump = 0; break;
+                                        case 0xC: state.volume = Math.min(64, state.effVal); break;
+                                        case 0xD: nextPosJump = currentSongPos + 1; nextRowJump = (state.effVal >> 4) * 10 + (state.effVal & 0x0F); break;
+                                        case 0xF: 
+                                            if (state.effVal === 0) {
+                                                nextPosJump = modData.songLength; 
+                                            } else if (state.effVal < 32) {
+                                                speed = state.effVal; 
+                                            } else {
+                                                bpm = state.effVal; 
+                                            }
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        for (let ch = 0; ch < 4; ch++) {
+                            let state = chState[ch];
+                            let cmd = state.effect;
+                            let val = state.effVal;
+                            switch (cmd) {
+                                case 0x1: if(state.period > 0) state.period = Math.max(113, state.period - val); state.basePeriod = state.period; break;
+                                case 0x2: if(state.period > 0) state.period = Math.min(856, state.period + val); state.basePeriod = state.period; break;
+                                case 0x3:
+                                case 0x5:
+                                    if (state.period < state.targetPeriod) state.period = Math.min(state.targetPeriod, state.period + state.portaSpeed);
+                                    else if (state.period > state.targetPeriod) state.period = Math.max(state.targetPeriod, state.period - state.portaSpeed);
+                                    state.basePeriod = state.period;
+                                    if (cmd === 0x5) {
+                                        let up = val >> 4, down = val & 0x0F;
+                                        if (up > 0) state.volume = Math.min(64, state.volume + up); else state.volume = Math.max(0, state.volume - down);
+                                    }
+                                    break;
+                                case 0x4:
+                                case 0x6:
+                                    state.vibratoPos = (state.vibratoPos + state.vibratoSpeed) % 64;
+                                    if (cmd === 0x6) {
+                                        let up = val >> 4, down = val & 0x0F;
+                                        if (up > 0) state.volume = Math.min(64, state.volume + up); else state.volume = Math.max(0, state.volume - down);
+                                    }
+                                    break;
+                                case 0xA:
+                                    let up = val >> 4, down = val & 0x0F;
+                                    if (up > 0) state.volume = Math.min(64, state.volume + up); else state.volume = Math.max(0, state.volume - down);
+                                    break;
+                            }
+                        }
+                    }
+                    
+                    currentTick++;
+                    if (currentTick >= speed) {
+                        currentTick = 0;
+                        if (nextPosJump !== -1) {
+                            currentSongPos = nextPosJump;
+                            currentRow = nextRowJump;
+                            nextPosJump = -1;
+                            nextRowJump = -1;
+                        } else {
+                            currentRow++;
+                            if (currentRow >= 64) {
+                                currentRow = 0;
+                                currentSongPos++;
+                            }
+                        }
+                    }
+                    samplesLeftInTick = Math.floor(sampleRate * 2.5 / bpm);
+                }
+
+                let outL_mix = 0, outR_mix = 0;
+
+                for (let ch = 0; ch < 4; ch++) {
+                    let state = chState[ch];
+                    let oL = 0, oR = 0;
+
+                    if (state.sample > 0 && state.period > 0) {
+                        let smp = modData.samples[state.sample - 1];
+                        if (smp && smp.pcmData && smp.pcmData.length > 0) {
+                            
+                            let loopEnd = smp.loopStart + smp.loopLength;
+                            
+                            if (smp.loopLength > 2 && state.smpPos >= loopEnd) {
+                                state.smpPos = smp.loopStart + ((state.smpPos - smp.loopStart) % smp.loopLength);
+                            } else if (state.smpPos >= smp.length) {
+                                state.sample = 0;
+                                continue;
+                            }
+
+                            let idx = Math.floor(state.smpPos);
+                            let frac = state.smpPos - idx;
+                            
+                            if (idx >= smp.length) {
+                                state.sample = 0;
+                                continue;
+                            }
+                            
+                            let val1 = smp.pcmData[idx];
+                            let val2 = val1;
+                            
+                            if (idx + 1 < smp.length) {
+                                if (smp.loopLength > 2 && (idx + 1) >= loopEnd) {
+                                    val2 = smp.pcmData[smp.loopStart];
+                                } else {
+                                    val2 = smp.pcmData[idx + 1];
+                                }
+                            }
+                            
+                            let val = val1 + (val2 - val1) * frac;
+                            let sampleVal = val * (state.volume / 64.0);
+                            
+                            // パンニング制御ロジックの修正
+                            if (isPanDisabled) {
+                                // パンニングを無効化：左右チャンネルに均等に出力 (センター定位)
+                                oL = sampleVal;
+                                oR = sampleVal;
+                            } else {
+                                // 通常の Amiga ハードパンニングステレオ配置
+                                if (ch === 0 || ch === 3) {
+                                    oL = sampleVal; 
+                                    oR = 0;
+                                } else {
+                                    oL = 0; 
+                                    oR = sampleVal;
+                                }
+                            }
+                            
+                            let finalPeriod = state.period;
+                            if (state.effect === 0x0 && state.effVal > 0) {
+                                let step = currentTick % 3;
+                                if (step === 1) finalPeriod = getPeriodOffset(state.basePeriod, state.effVal >> 4);
+                                else if (step === 2) finalPeriod = getPeriodOffset(state.basePeriod, state.effVal & 0x0F);
+                            }
+                            if ((state.effect === 0x4 || state.effect === 0x6) && finalPeriod > 0) {
+                                let waveVal = VIBRATO_TABLE[state.vibratoPos];
+                                let periodOffset = (waveVal * state.vibratoDepth) / 128.0;
+                                if (state.vibratoPos >= 32) periodOffset = -periodOffset;
+                                finalPeriod += periodOffset;
+                            }
+                            if (finalPeriod < 113) finalPeriod = 113;
+                            
+                            let freq = AMIGA_CLOCK / finalPeriod; 
+                            let tuningMult = FINETUNE_MULTIPLIERS[state.finetune] || 1.0;
+                            let delta = (freq / sampleRate) * tuningMult;
+                            state.smpPos += delta;
+                        }
+                    }
+
+                    chL[ch][s] = oL * mixGain;
+                    chR[ch][s] = oR * mixGain;
+                    outL_mix += oL;
+                    outR_mix += oR;
+                }
+
+                mixL[s] = outL_mix * mixGain;
+                mixR[s] = outR_mix * mixGain;
+
+                s++;
+                samplesLeftInTick--;
+
+                if (s % 250000 === 0) {
+                    let progress = Math.min(100, Math.floor((currentSongPos / modData.songLength) * 100));
+                    progressBar.style.width = progress + "%";
+                    statusMessage.textContent = `波形生成中: ${progress}%`;
+                    await new Promise(r => setTimeout(r, 0));
+                }
+            }
+
+            const totalSamples = s;
+            progressBar.style.width = "100%";
+            statusMessage.textContent = "WAVファイルのバイナリ構築中...";
+            await new Promise(r => setTimeout(r, 50));
+
+            downloadList.innerHTML = "";
+            const cleanTitle = (modData.title || "StudioQuality").replace(/[^a-zA-Z0-9-_ ]/g, "").trim() || "ModuleTrack";
+
+            // パンニング設定に応じて表示名（接尾辞）を分かりやすく変更
+            const suffixModifier = isPanDisabled ? "_MonoCenter" : "";
+
+            const tracks = [
+                { name: `Full Mix (${isPanDisabled ? 'センターモノラルステレオ' : 'ハードパンステレオ'})`, l: mixL.subarray(0, totalSamples), r: mixR.subarray(0, totalSamples), fileSuffix: `_FullMix${suffixModifier}.wav` },
+                { name: `Track 1 (Channel 1 - ${isPanDisabled ? 'Center' : 'L100%'})`, l: chL[0].subarray(0, totalSamples), r: chR[0].subarray(0, totalSamples), fileSuffix: `_CH1${suffixModifier}.wav` },
+                { name: `Track 2 (Channel 2 - ${isPanDisabled ? 'Center' : 'R100%'})`, l: chL[1].subarray(0, totalSamples), r: chR[1].subarray(0, totalSamples), fileSuffix: `_CH2${suffixModifier}.wav` },
+                { name: `Track 3 (Channel 3 - ${isPanDisabled ? 'Center' : 'R100%'})`, l: chL[2].subarray(0, totalSamples), r: chR[2].subarray(0, totalSamples), fileSuffix: `_CH3${suffixModifier}.wav` },
+                { name: `Track 4 (Channel 4 - ${isPanDisabled ? 'Center' : 'L100%'})`, l: chL[3].subarray(0, totalSamples), r: chR[3].subarray(0, totalSamples), fileSuffix: `_CH4${suffixModifier}.wav` }
+            ];
+
+            const generatedLinks = [];
+
+            for (let t = 0; t < tracks.length; t++) {
+                statusMessage.textContent = `WAV出力中: ${tracks[t].name}...`;
+                await new Promise(r => setTimeout(r, 10));
+
+                const wavBlob = createWavBlob(tracks[t].l, tracks[t].r, sampleRate);
+                const url = URL.createObjectURL(wavBlob);
+                const filename = `${cleanTitle}${tracks[t].fileSuffix}`;
+                const sizeMB = ((wavBlob.size) / (1024 * 1024)).toFixed(2);
+
+                const item = document.createElement('div');
+                item.className = "download-item";
+                item.innerHTML = `
+                    <div>
+                        <span class="track-name">${tracks[t].name}</span>
+                        <span class="track-size">(${sizeMB} MB)</span>
+                    </div>
+                    <a href="${url}" download="${filename}" class="download-link">📥 ダウンロード</a>
+                `;
+                downloadList.appendChild(item);
+                
+                generatedLinks.push({ url, filename });
+            }
+
+            statusMessage.textContent = "✨ 完了！適正な長さとサイズで書き出せました！";
+            downloadZone.style.display = "block";
+            exportActive = false;
+            btnExport.disabled = false;
+
+            btnBatchDownload.onclick = function() {
+                generatedLinks.forEach((link, idx) => {
+                    setTimeout(() => {
+                        let a = document.createElement('a');
+                        a.href = link.url;
+                        a.download = link.filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                    }, idx * 300); 
+                });
+            };
+        }
+
+        function createWavBlob(left, right, sampleRate) {
+            const buffer = new ArrayBuffer(44 + left.length * 2 * 2);
+            const view = new DataView(buffer);
+            
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + left.length * 2 * 2, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true); 
+            view.setUint16(22, 2, true); 
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 4, true); 
+            view.setUint16(32, 4, true); 
+            view.setUint16(34, 16, true); 
+            writeString(view, 36, 'data');
+            view.setUint32(40, left.length * 2 * 2, true);
+            
+            let offset = 44;
+            for (let i = 0; i < left.length; i++) {
+                let l = Math.max(-1, Math.min(1, left[i]));
+                view.setInt16(offset, l < 0 ? l * 0x8000 : l * 0x7FFF, true);
+                let r = Math.max(-1, Math.min(1, right[i]));
+                view.setInt16(offset + 2, r < 0 ? r * 0x8000 : r * 0x7FFF, true);
+                offset += 4;
+            }
+            
+            return new Blob([buffer], {type: 'audio/wav'});
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+    </script>
+</body>
+</html>
